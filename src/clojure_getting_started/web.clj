@@ -6,14 +6,11 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
             [camel-snake-kebab.core :as kebab]))
-(def sample (env :sample "sample-string-thing"))
 
 (defn splash []
   {:status 200
    :headers {"Content-Type" "text/plain"}
-   :body (for [kind ["camel" "snake" "kebab"]]
-           (format "<a href=\"/%s?input=%s\">%s %s</a><br />"
-                   kind sample kind sample))})
+   :body "Hello from Heroku"})
 
 (defroutes app
 		(GET "/camel" {{input :input} :params}
