@@ -11,17 +11,9 @@
 (defn splash []
   {:status 200
    :headers {"Content-Type" "text/plain"}
-   :body (concat (for [kind ["camel" "snake" "kebab"]]
-                   (format "<a href=\"/%s?input=%s\">%s %s</a><br />"
-                           kind sample kind sample))
-                 ["<hr /><ul>"]
-                 (for [s (db/query (env :database-url)
-                                   ["select content from sayings"])]
-                   (format "<li>%s</li>" (:content s)))
-                 ["</ul>"])})
-(defn record [input]
-  (db/insert! (env :database-url "postgres://localhost:5432/kebabs")
-              :sayings {:content input}))
+   :body (for [kind ["camel" "snake" "kebab"]]
+           (format "<a href=\"/%s?input=%s\">%s %s</a><br />"
+                   kind sample kind sample))})
 
 (defroutes app
 		(GET "/camel" {{input :input} :params}
@@ -41,7 +33,9 @@
   (ANY "*" []
        (route/not-found (slurp (io/resource "404.html")))))
 
-
+(defn -main [& [port]]
+  (let [port (Integer. (or port (env :port) 5000))]
+    (jetty/run-jetty (site #'app) {:port port :join? false})))
 
 ;; For interactive development:
 ;; (.stop server)
